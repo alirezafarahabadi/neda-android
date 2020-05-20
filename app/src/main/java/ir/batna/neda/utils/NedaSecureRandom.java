@@ -3,9 +3,9 @@ package ir.batna.neda.utils;
 import java.security.SecureRandom;
 import java.util.Random;
 
-public class SabaSecureRandom {
+public class NedaSecureRandom {
 
-    public String generateSecureRandom() {
+    public static String generateSecureRandomToken() {
 
         final String symbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         final Random random = new SecureRandom();
