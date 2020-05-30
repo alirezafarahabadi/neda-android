@@ -36,14 +36,15 @@ public class ClientRegisterService extends IntentService {
         Bundle bundle = intent.getExtras();
         String packageName = bundle.getString(NedaUtils.PACKAGE_NAME);
         String signature = bundle.getString(NedaUtils.SIGNATURE);
-        registerApp(this, packageName, signature);
+        long installDate = bundle.getLong(NedaUtils.INSTALL_DATE);
+        registerApp(this, packageName, signature, installDate);
     }
 
-    private static void registerApp(Context context, String packageName, String signature) {
+    private static void registerApp(Context context, String packageName, String signature, long installDate) {
 
         log("Reading database for packageName: " + packageName + " and signature: " + signature);
         ClientAppDatabase database = ClientAppDatabase.getDatabase(context);
-        ClientApp clientApp = database.clientAppDao().findByPackageName(packageName, signature);
+        ClientApp clientApp = database.clientAppDao().findByPackage(packageName, signature, String.valueOf(installDate));
         if (clientApp == null) {
 
             // saving app as a new client database
@@ -52,7 +53,7 @@ public class ClientRegisterService extends IntentService {
             log("Token generated: " + token);
             String date = getFormatttedDate(Calendar.getInstance().getTime());
             log("Date is: " + date);
-            ClientApp newClientApp = new ClientApp(packageName, signature, token, NOT_REGISTERED, date, date);
+            ClientApp newClientApp = new ClientApp(packageName, signature, token, NOT_REGISTERED, String.valueOf(installDate), date, date);
             database.clientAppDao().insert(newClientApp);
             log("app saved in database");
 
@@ -61,7 +62,6 @@ public class ClientRegisterService extends IntentService {
             Intent intent = new Intent();
             intent.putExtra(NedaUtils.TYPE, NedaUtils.REGISTER_APP);
             intent.putExtra(APP, packageName);
-            intent.putExtra(NedaUtils.PACKAGE_NAME, packageName);
             intent.putExtra(NedaUtils.TOKEN, token);
             intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
             Log.i("sending token", " back to " + packageName);

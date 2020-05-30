@@ -93,7 +93,7 @@ public class NedaService extends Service {
                 startNeda(context);
                 break;
             case NedaUtils.REGISTER_APP:
-                registerApp(bundle, context);
+                registerClientApp(bundle, context);
         }
         return START_STICKY;
     }
@@ -105,7 +105,7 @@ public class NedaService extends Service {
     }
 
     public void startWebSocket(String deviceRegister) {
-        log("Starting websocket");
+        log("Starting websocket ...");
         log("Device register: " + deviceRegister);
 //        OkHttpClient client = new OkHttpClient.Builder().connectTimeout(0, TimeUnit.HOURS).build();
         OkHttpClient client = getUnsafeOkHttpClient();
@@ -172,7 +172,7 @@ public class NedaService extends Service {
         NedaSharedPref nedaSharedPref = new NedaSharedPref(context);
         String deviceId = nedaSharedPref.loadStringData(NedaUtils.DEVICE_ID);
         if (deviceId.equalsIgnoreCase("")) {
-            log("Creating deviceId");
+            log("Creating deviceId ... ");
             deviceId = NedaSecureRandom.generateSecureRandomToken();
             nedaSharedPref.saveData(NedaUtils.DEVICE_ID, deviceId);
         } else {
@@ -248,14 +248,16 @@ public class NedaService extends Service {
         }
     }
 
-    private void registerApp(Bundle bundle, Context context) {
+    private void registerClientApp(Bundle bundle, Context context) {
 
         String packageName = bundle.getString(NedaUtils.APP);
         String signature = bundle.getString(SIGNATURE);
-        log("Registering app, packageName: " + packageName + ", signature: " + signature);
+        long installDate = bundle.getLong(NedaUtils.INSTALL_DATE);
+        log("Registering app, packageName: " + packageName + ", signature: " + signature + " installDate: " + installDate);
         Intent clientRegisterIntent = new Intent(context, ClientRegisterService.class);
         clientRegisterIntent.putExtra(NedaUtils.PACKAGE_NAME, packageName);
         clientRegisterIntent.putExtra(SIGNATURE, signature);
+        clientRegisterIntent.putExtra(NedaUtils.INSTALL_DATE, installDate);
         context.startService(clientRegisterIntent);
     }
 

@@ -63,14 +63,15 @@ public class MessageHandleService extends IntentService {
                         ClientAppDatabase database = ClientAppDatabase.getDatabase(context);
                         ClientApp clientApp = database.clientAppDao().findByToken(token);
                         if (clientApp != null) {
+
                             clientApp.status = NedaUtils.REGISTERED;
+                            log("Updating " + packageName + " status to registered");
+                            database.clientAppDao().updateByToken(token, NedaUtils.REGISTERED, NedaUtils.getCurrentDateInFormat());
+                            log("Database updated");
                         } else {
                             log("Something unusual happened: Received successful registration for an app that doesn't exist" +
                                     " on the database: " + packageName);
                         }
-                        log("Updating " + packageName + " status to registered");
-                        database.clientAppDao().updateByToken(token, NedaUtils.REGISTERED, NedaUtils.getCurrentDateInFormat());
-                        log("Database updated");
                     } else {
                         log("Failed to register package: " + jsonObject.getString(NedaUtils.PACKAGE_NAME) + " on push server");
                     }
@@ -82,9 +83,11 @@ public class MessageHandleService extends IntentService {
                     ClientAppDatabase database = ClientAppDatabase.getDatabase(context);
                     ClientApp clientApp = database.clientAppDao().findByToken(token);
                     String signature = clientApp.signature;
-                    if (NedaUtils.isAppInstalled(context, packageName, signature)) {
+                    long installDate = new Long(clientApp.dateInstalled).longValue();
+                    if (NedaUtils.isAppInstalled(context, packageName, signature, installDate)) {
 
                         log("The package that was intended to receive the push message, exists on the device");
+
                         String pushData = jsonObject.getString(NedaUtils.DATA);
                         Intent intent = new Intent();
                         intent.putExtra(NedaUtils.TYPE, NedaUtils.PUSH);

@@ -27,18 +27,22 @@ public class ClientApp {
     @ColumnInfo(name = "status")
     public String status;
 
-    @ColumnInfo(name = "date_created")
+    @ColumnInfo(name = "date_app_installed")
+    public String dateInstalled;
+
+    @ColumnInfo(name = "date_record_created")
     public String dateCreated;
 
-    @ColumnInfo(name = "date_modified")
+    @ColumnInfo(name = "date_record_modified")
     public String dateModified;
 
-    public ClientApp(String packageName, String signature, String token, String status, String dateCreated, String dateModified) {
+    public ClientApp(String packageName, String signature, String token, String status, String dateInstalled, String dateCreated, String dateModified) {
 
         this.packageName = packageName;
         this.signature = signature;
         this.token = token;
         this.status = status;
+        this.dateInstalled = dateInstalled;
         this.dateCreated = dateCreated;
         this.dateModified = dateModified;
     }

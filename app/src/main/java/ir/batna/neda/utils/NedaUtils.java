@@ -48,6 +48,8 @@ public class NedaUtils {
     public static final String MESSAGE_HANDLE = "messageHandle";
     public static final String PACKAGE_NAME = "packageName";
     public static final String CLIENT_REGISTER_SERVICE = "ClientRegisterService";
+    public static final String INSTALL_DATE = "installDate";
+
 
     public enum NedaMode {
         LEGACY,
@@ -83,7 +85,7 @@ public class NedaUtils {
         return format;
     }
 
-    public static boolean isAppInstalled(Context context, String packageName, String signature) {
+    public static boolean isAppInstalled(Context context, String packageName, String signature, long installDate) {
 
         PackageManager packageManager = context.getPackageManager();
         List<ApplicationInfo> packages = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
@@ -95,9 +97,11 @@ public class NedaUtils {
                     PackageInfo packageInfo = packageManager.getPackageInfo(applicationInfo.packageName, PackageManager.GET_SIGNING_CERTIFICATES);
                     if (applicationInfo.packageName.equalsIgnoreCase(packageName)) {
                         Signature[] installedSignatures = packageInfo.signingInfo.getApkContentsSigners();
-                        String signatureDigest = NedaUtils.getSha256(installedSignatures[0].toCharsString());
-                        if (signatureDigest.equalsIgnoreCase(signature)) {
-                            return true;
+                        if (packageInfo.firstInstallTime == installDate) {
+                            String signatureDigest = NedaUtils.getSha256(installedSignatures[0].toCharsString());
+                            if (signatureDigest.equalsIgnoreCase(signature)) {
+                                return true;
+                            }
                         }
                     }
 
@@ -106,9 +110,11 @@ public class NedaUtils {
                     PackageInfo packageInfo = packageManager.getPackageInfo(applicationInfo.packageName, PackageManager.GET_SIGNATURES);
                     if (applicationInfo.packageName.equalsIgnoreCase(packageName)) {
                         Signature[] installedSignatures = packageInfo.signatures;
-                        String signatureDigest = NedaUtils.getSha256(installedSignatures[0].toCharsString());
-                        if (signatureDigest.equalsIgnoreCase(signature)) {
-                            return true;
+                        if (packageInfo.firstInstallTime == installDate) {
+                            String signatureDigest = NedaUtils.getSha256(installedSignatures[0].toCharsString());
+                            if (signatureDigest.equalsIgnoreCase(signature)) {
+                                return true;
+                            }
                         }
                     }
 
