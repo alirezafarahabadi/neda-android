@@ -14,6 +14,8 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,7 @@ import ir.batna.neda.database.ClientAppDatabase;
 import ir.batna.neda.utils.NedaSecureRandom;
 import ir.batna.neda.utils.NedaSharedPref;
 import ir.batna.neda.utils.NedaUtils;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -65,10 +68,10 @@ public class NedaService extends Service {
                 log("nedaMode is " + nedaMode);
                 Intent serviceIntent = new Intent(context, NedaService.class);
                 serviceIntent.putExtra(NedaUtils.TYPE, NedaUtils.START_NEDA_SERVICE);
-                if (nedaMode.equals(NedaUtils.NedaMode.SYSTEM)) {
+                if (nedaMode.toString().equalsIgnoreCase(NedaUtils.NedaMode.SYSTEM.toString())) {
                     context.startService(serviceIntent);
                 } else {
-                    if (nedaMode.equals(NedaUtils.NedaMode.FOREGROUND)) {
+                    if (nedaMode.toString().equalsIgnoreCase(NedaUtils.NedaMode.FOREGROUND.toString())) {
                         context.startForegroundService(serviceIntent);
                     } else {
                         context.startService(serviceIntent);
@@ -90,7 +93,7 @@ public class NedaService extends Service {
         switch (type) {
 
             case NedaUtils.START_NEDA_SERVICE:
-                startNeda(context);
+                if (ws == null) startNeda(context);
                 break;
             case NedaUtils.REGISTER_APP:
                 registerClientApp(bundle, context);
@@ -107,16 +110,17 @@ public class NedaService extends Service {
     public void startWebSocket(String deviceRegister) {
         log("Starting websocket ...");
         log("Device register: " + deviceRegister);
-//        OkHttpClient client = new OkHttpClient.Builder().connectTimeout(0, TimeUnit.HOURS).build();
-        OkHttpClient client = getUnsafeOkHttpClient();
-
-        Request request = new Request.Builder().url("wss://voip.benevolence.ir:8080").build();
+        OkHttpClient client = new OkHttpClient.Builder().build();
+//        OkHttpClient client = getUnsafeOkHttpClient();
+        Request request = new Request.Builder().url("ws://voip.benevolence.ir:8010/").build();
         WebSocketListener listener = new WebSocketListener() {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
                 super.onOpen(webSocket, response);
                 log("Websocket opened");
-                configureForegroundService(context, NedaUtils.NOTIFICATION_TEXT);
+                if (nedaMode.toString().equalsIgnoreCase(NedaUtils.NedaMode.FOREGROUND.toString())) {
+                    configureForegroundService(context, NedaUtils.NOTIFICATION_TEXT);
+                }
                 webSocket.send(deviceRegister);
                 registerUnregisteredApps(context);
             }
@@ -145,13 +149,17 @@ public class NedaService extends Service {
             @Override
             public void onClosed(WebSocket webSocket, int code, String reason) {
                 super.onClosed(webSocket, code, reason);
-                configureForegroundService(context, NedaUtils.NOTIFICATION_TEXT_CLOSED);
+                if (nedaMode.toString().equalsIgnoreCase(NedaUtils.NedaMode.FOREGROUND.toString())) {
+                    configureForegroundService(context, NedaUtils.NOTIFICATION_TEXT_CLOSED);
+                }
                 log("Websocket closed");
             }
 
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, @Nullable Response response) {
-                configureForegroundService(context, NedaUtils.NOTIFICATION_TEXT_RECONNECTING);
+                if (nedaMode.toString().equalsIgnoreCase(NedaUtils.NedaMode.FOREGROUND.toString())) {
+                    configureForegroundService(context, NedaUtils.NOTIFICATION_TEXT_RECONNECTING);
+                }
                 log("Websocket failed, reconnecting in " + NedaUtils.SOCKET_RETRY_INTERVAL + "ms");
                 handler.postDelayed(new Runnable() {
                     @Override
