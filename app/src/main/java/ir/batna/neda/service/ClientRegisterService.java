@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -44,7 +45,7 @@ public class ClientRegisterService extends IntentService {
 
         log("Reading database for packageName: " + packageName + " and signature: " + signature);
         ClientAppDatabase database = ClientAppDatabase.getDatabase(context);
-        ClientApp clientApp = database.clientAppDao().findByPackage(packageName, signature, String.valueOf(installDate));
+        ClientApp clientApp = database.clientAppDao().findByPackageInfo(packageName, signature, String.valueOf(installDate));
         if (clientApp == null) {
 
             // saving app as a new client database
@@ -65,7 +66,11 @@ public class ClientRegisterService extends IntentService {
             intent.putExtra(NedaUtils.TOKEN, token);
             intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
             Log.i("sending token", " back to " + packageName);
-            context.startService(intent);
+            if (Build.VERSION.SDK_INT >= 26) {
+                context.startForegroundService(intent);
+            } else {
+                context.startService(intent);
+            }
 
 
             // registering app on the server
@@ -83,7 +88,11 @@ public class ClientRegisterService extends IntentService {
             intent.putExtra(NedaUtils.TOKEN, token);
             intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
             log("Sending token back to " + packageName);
-            context.startService(intent);
+            if (Build.VERSION.SDK_INT >= 26) {
+                context.startForegroundService(intent);
+            } else {
+                context.startService(intent);
+            }
 
             // registering app on the server
             if (clientApp.status.equalsIgnoreCase(NOT_REGISTERED)) {

@@ -18,13 +18,12 @@ public interface ClientAppDao {
     @Query("SELECT * FROM ClientApp WHERE status LIKE :status")
     List<ClientApp> loadAllDataByStatus(String status);
 
-    @Query("SELECT * FROM ClientApp WHERE package_name LIKE :packageName AND " +
-            "signature LIKE :signature AND date_app_installed LIKE :dateInstalled")
-    ClientApp findByPackage(String packageName, String signature, String dateInstalled);
+    @Query("SELECT * FROM ClientApp WHERE package_name LIKE :packageName")
+    ClientApp findByPackageName(String packageName);
 
     @Query("SELECT * FROM ClientApp WHERE package_name LIKE :packageName AND " +
-            "signature LIKE :signature")
-    ClientApp findByPackageName(String packageName, String signature);
+            "signature LIKE :signature AND date_app_installed LIKE :dateInstalled")
+    ClientApp findByPackageInfo(String packageName, String signature, String dateInstalled);
 
     @Query("SELECT * FROM ClientApp WHERE token LIKE :token LIMIT 1")
     ClientApp findByToken(String token);

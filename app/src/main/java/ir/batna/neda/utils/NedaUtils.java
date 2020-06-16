@@ -5,7 +5,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
 
@@ -83,6 +82,19 @@ public class NedaUtils {
 
         String format = "{\"type\":\"register\",\"deviceId\":\"" + deviceId + "\"}";
         return format;
+    }
+
+    public static boolean isAppInstalled(Context context, String packageName) {
+
+        PackageManager packageManager = context.getPackageManager();
+        List<ApplicationInfo> packages = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+
+        for (ApplicationInfo applicationInfo : packages) {
+            if (applicationInfo.packageName.equalsIgnoreCase(packageName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean isAppInstalled(Context context, String packageName, String signature, long installDate) {

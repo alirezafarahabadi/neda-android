@@ -4,8 +4,8 @@ import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -78,25 +78,64 @@ public class MessageHandleService extends IntentService {
                     break;
 
                 case NedaUtils.PUSH:
+                    log("Push message received");
                     String packageName = jsonObject.getString(NedaUtils.APP);
-                    String token = jsonObject.getString(NedaUtils.TOKEN);
-                    ClientAppDatabase database = ClientAppDatabase.getDatabase(context);
-                    ClientApp clientApp = database.clientAppDao().findByToken(token);
-                    String signature = clientApp.signature;
-                    long installDate = new Long(clientApp.dateInstalled).longValue();
-                    if (NedaUtils.isAppInstalled(context, packageName, signature, installDate)) {
+                    String token = null;
+                    try {
+                        token = jsonObject.getString(NedaUtils.TOKEN);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (token == null) {
 
-                        log("The package that was intended to receive the push message, exists on the device");
+                        log("Push message does not have any token");
+                        ClientAppDatabase database = ClientAppDatabase.getDatabase(context);
+                        ClientApp clientApp = database.clientAppDao().findByPackageName(packageName);
+                        if (clientApp != null) {
 
-                        String pushData = jsonObject.getString(NedaUtils.DATA);
-                        Intent intent = new Intent();
-                        intent.putExtra(NedaUtils.TYPE, NedaUtils.PUSH);
-                        intent.putExtra(NedaUtils.DATA, pushData);
-                        intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
-                        context.startService(intent);
-                        log("Push message sent to " + packageName);
+                            if (NedaUtils.isAppInstalled(context, packageName)) {
+
+                                log("The package that was intended to receive the push message, exists on the device");
+                                String pushData = jsonObject.getString(NedaUtils.DATA);
+                                Intent intent = new Intent();
+                                intent.putExtra(NedaUtils.TYPE, NedaUtils.PUSH);
+                                intent.putExtra(NedaUtils.DATA, pushData);
+                                intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
+                                if (Build.VERSION.SDK_INT >= 26) {
+                                    context.startForegroundService(intent);
+                                } else {
+                                    context.startService(intent);
+                                }
+                                log("Push message sent to " + packageName);
+                            } else {
+                                log("The package that was intended to receive the push message does not exist on this device anymore!");
+                            }
+                        } else {
+                            log("Received Push message for an app that is not registered in Neda!!!");
+                        }
                     } else {
-                        log("The package that was intended to receive the push message does not exist on this device anymore!");
+                        log("Push message has a token");
+                        ClientAppDatabase database = ClientAppDatabase.getDatabase(context);
+                        ClientApp clientApp = database.clientAppDao().findByToken(token);
+                        String signature = clientApp.signature;
+                        long installDate = new Long(clientApp.dateInstalled).longValue();
+                        if (NedaUtils.isAppInstalled(context, packageName, signature, installDate)) {
+
+                            log("The package that was intended to receive the push message, exists on the device");
+                            String pushData = jsonObject.getString(NedaUtils.DATA);
+                            Intent intent = new Intent();
+                            intent.putExtra(NedaUtils.TYPE, NedaUtils.PUSH);
+                            intent.putExtra(NedaUtils.DATA, pushData);
+                            intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
+                            if (Build.VERSION.SDK_INT >= 26) {
+                                context.startForegroundService(intent);
+                            } else {
+                                context.startService(intent);
+                            }
+                            log("Push message sent to " + packageName);
+                        } else {
+                            log("The package that was intended to receive the push message does not exist on this device anymore!");
+                        }
                     }
                     break;
             }
