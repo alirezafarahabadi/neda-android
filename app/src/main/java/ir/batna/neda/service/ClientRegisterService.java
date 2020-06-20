@@ -20,7 +20,7 @@ import ir.batna.neda.utils.NedaUtils;
 import static ir.batna.neda.service.NedaService.ws;
 import static ir.batna.neda.utils.NedaUtils.APP;
 import static ir.batna.neda.utils.NedaUtils.NOT_REGISTERED;
-import static ir.batna.neda.utils.NedaUtils.getFormatttedDate;
+import static ir.batna.neda.utils.NedaUtils.getformattedDate;
 import static ir.batna.neda.utils.NedaUtils.getJsonFormat;
 import static ir.batna.neda.utils.NedaUtils.log;
 
@@ -52,7 +52,7 @@ public class ClientRegisterService extends IntentService {
             log("No such package in database, registering as a new client");
             String token = NedaSecureRandom.generateSecureRandomToken();
             log("Token generated: " + token);
-            String date = getFormatttedDate(Calendar.getInstance().getTime());
+            String date = getformattedDate(Calendar.getInstance().getTime());
             log("Date is: " + date);
             ClientApp newClientApp = new ClientApp(packageName, signature, token, NOT_REGISTERED, String.valueOf(installDate), date, date);
             database.clientAppDao().insert(newClientApp);

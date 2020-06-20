@@ -4,8 +4,11 @@ package ir.batna.neda.service;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -235,4 +238,20 @@ public class NedaService extends Service {
         });
         registerThread.start();
     }
+
+    private BroadcastReceiver wifiStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int wifiStateExtra = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE,
+                    WifiManager.WIFI_STATE_UNKNOWN);
+            switch (wifiStateExtra) {
+                case WifiManager.WIFI_STATE_ENABLED:
+
+                    break;
+                case WifiManager.WIFI_STATE_DISABLED:
+
+                    break;
+            }
+        }
+    };
 }

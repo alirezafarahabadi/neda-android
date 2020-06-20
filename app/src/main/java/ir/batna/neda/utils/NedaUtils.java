@@ -5,6 +5,8 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.Log;
 
@@ -15,6 +17,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.Context.WIFI_SERVICE;
 
 public class NedaUtils {
 
@@ -57,7 +62,7 @@ public class NedaUtils {
     }
 
 
-    public static String getFormatttedDate(Date date) {
+    public static String getformattedDate(Date date) {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String formattedDate = sdf.format(date);
@@ -68,7 +73,7 @@ public class NedaUtils {
 
         Calendar calendar = Calendar.getInstance();
         Date currentDate = calendar.getTime();
-        String formattedDate = getFormatttedDate(currentDate);
+        String formattedDate = getformattedDate(currentDate);
         return formattedDate;
     }
 
@@ -186,5 +191,19 @@ public class NedaUtils {
     public static void log(String text) {
 
         Log.v("NEDA ", "==> " + text);
+    }
+
+    public static boolean isNetworkConnected(Context context) {
+
+        boolean isConnected = false;
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(CONNECTIVITY_SERVICE);
+        if (!isConnected) {
+            WifiManager wifiManager = (WifiManager) context.getSystemService(WIFI_SERVICE);
+            if (wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLED) {
+                isConnected = true;
+            }
+        }
+
+        return isConnected;
     }
 }
