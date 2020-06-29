@@ -95,7 +95,7 @@ public class NedaService extends Service {
         log("Starting websocket ...");
         log("Device register: " + deviceRegister);
         OkHttpClient client = new OkHttpClient.Builder().build();
-        Request request = new Request.Builder().url("ws://voip.benevolence.ir:8010/").build();
+        Request request = new Request.Builder().url("ws://94.139.164.205:8010/").build();
         WebSocketListener listener = new WebSocketListener() {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
