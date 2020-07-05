@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -100,12 +99,9 @@ public class MessageHandleService extends IntentService {
                                 Intent intent = new Intent();
                                 intent.putExtra(NedaUtils.TYPE, NedaUtils.PUSH);
                                 intent.putExtra(NedaUtils.DATA, pushData);
-                                intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
-                                if (Build.VERSION.SDK_INT >= 26) {
-                                    context.startForegroundService(intent);
-                                } else {
-                                    context.startService(intent);
-                                }
+                                intent.setAction(NedaUtils.NEDA_RECEIVER_INTENT_ACTION);
+                                intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.NEDA_CLIENT_RECEIVER));
+                                context.sendBroadcast(intent);
                                 log("Push message sent to " + packageName);
                             } else {
                                 log("The package that was intended to receive the push message does not exist on this device anymore!");
@@ -126,12 +122,9 @@ public class MessageHandleService extends IntentService {
                             Intent intent = new Intent();
                             intent.putExtra(NedaUtils.TYPE, NedaUtils.PUSH);
                             intent.putExtra(NedaUtils.DATA, pushData);
-                            intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
-                            if (Build.VERSION.SDK_INT >= 26) {
-                                context.startForegroundService(intent);
-                            } else {
-                                context.startService(intent);
-                            }
+                            intent.setAction(NedaUtils.NEDA_RECEIVER_INTENT_ACTION);
+                            intent.setComponent(new ComponentName(packageName,NedaUtils.NEDA_CLIENT_RECEIVER));
+                            context.sendBroadcast(intent);
                             log("Push message sent to " + packageName);
                         } else {
                             log("The package that was intended to receive the push message does not exist on this device anymore!");

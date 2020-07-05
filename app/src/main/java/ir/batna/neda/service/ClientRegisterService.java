@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -64,13 +63,10 @@ public class ClientRegisterService extends IntentService {
             intent.putExtra(NedaUtils.TYPE, NedaUtils.REGISTER_APP);
             intent.putExtra(APP, packageName);
             intent.putExtra(NedaUtils.TOKEN, token);
-            intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
-            Log.i("sending token", " back to " + packageName);
-            if (Build.VERSION.SDK_INT >= 26) {
-                context.startForegroundService(intent);
-            } else {
-                context.startService(intent);
-            }
+            intent.setAction(NedaUtils.NEDA_RECEIVER_INTENT_ACTION);
+            intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.NEDA_CLIENT_RECEIVER));
+            context.sendBroadcast(intent);
+            Log.i("Sent token back to", packageName);
 
 
             // registering app on the server
@@ -86,13 +82,10 @@ public class ClientRegisterService extends IntentService {
             intent.putExtra(NedaUtils.TYPE, NedaUtils.REGISTER_APP);
             intent.putExtra(APP, packageName);
             intent.putExtra(NedaUtils.TOKEN, token);
-            intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.CLIENT_SERVICE_COMPONENT));
-            log("Sending token back to " + packageName);
-            if (Build.VERSION.SDK_INT >= 26) {
-                context.startForegroundService(intent);
-            } else {
-                context.startService(intent);
-            }
+            intent.setAction(NedaUtils.NEDA_RECEIVER_INTENT_ACTION);
+            intent.setComponent(new ComponentName(packageName, packageName + NedaUtils.NEDA_CLIENT_RECEIVER));
+            context.sendBroadcast(intent);
+            log("Sent token back to " + packageName);
 
             // registering app on the server
             if (clientApp.status.equalsIgnoreCase(NOT_REGISTERED)) {

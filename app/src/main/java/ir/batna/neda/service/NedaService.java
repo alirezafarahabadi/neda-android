@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -95,7 +94,7 @@ public class NedaService extends Service {
         log("Starting websocket ...");
         log("Device register: " + deviceRegister);
         OkHttpClient client = new OkHttpClient.Builder().build();
-        Request request = new Request.Builder().url("ws://94.139.164.205:8010/").build();
+        Request request = new Request.Builder().url("ws://push.batna.ir:8010/").build();
         WebSocketListener listener = new WebSocketListener() {
             @Override
             public void onOpen(WebSocket webSocket, Response response) {

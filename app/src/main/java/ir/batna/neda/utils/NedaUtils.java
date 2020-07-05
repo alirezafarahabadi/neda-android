@@ -35,7 +35,6 @@ public class NedaUtils {
     public static final String TYPE = "type";
     public static final String REGISTER_APP = "registerApp";
     public static final String APP = "app";
-    public static final String NEDA_CLIENT_SERVICE = "MyIntentService";
     public static final String PUSH = "push";
     public static final String TOKEN = "token";
     public static final String DATA = "data";
@@ -43,7 +42,6 @@ public class NedaUtils {
     public static final String SIGNATURE = "signature";
     public static final String NOT_REGISTERED = "not_registered";
     public static final String REGISTERED = "registered";
-    public static final String CLIENT_SERVICE_COMPONENT = ".NedaClientService";
     public static final String REGISTER = "register";
     public static final String RESULT = "result";
     public static final String SUCCESS = "success";
@@ -53,6 +51,8 @@ public class NedaUtils {
     public static final String PACKAGE_NAME = "packageName";
     public static final String CLIENT_REGISTER_SERVICE = "ClientRegisterService";
     public static final String INSTALL_DATE = "installDate";
+    public static final String NEDA_RECEIVER_INTENT_ACTION = "ir.batna.neda.message";
+    public static final String NEDA_CLIENT_RECEIVER = ".NedaClientReceiver";
 
 
     public enum NedaMode {
