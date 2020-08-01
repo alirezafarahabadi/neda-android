@@ -16,6 +16,7 @@ import ir.batna.neda.database.ClientAppDatabase;
 import ir.batna.neda.utils.NedaSecureRandom;
 import ir.batna.neda.utils.NedaUtils;
 
+import static ir.batna.neda.application.Neda.nedaContext;
 import static ir.batna.neda.service.NedaService.ws;
 import static ir.batna.neda.utils.NedaUtils.APP;
 import static ir.batna.neda.utils.NedaUtils.NOT_REGISTERED;
@@ -37,7 +38,7 @@ public class ClientRegisterService extends IntentService {
         String packageName = bundle.getString(NedaUtils.PACKAGE_NAME);
         String signature = bundle.getString(NedaUtils.SIGNATURE);
         long installDate = bundle.getLong(NedaUtils.INSTALL_DATE);
-        registerApp(this, packageName, signature, installDate);
+        registerApp(nedaContext, packageName, signature, installDate);
     }
 
     private static void registerApp(Context context, String packageName, String signature, long installDate) {

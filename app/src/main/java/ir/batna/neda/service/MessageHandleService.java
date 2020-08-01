@@ -15,6 +15,7 @@ import ir.batna.neda.database.ClientApp;
 import ir.batna.neda.database.ClientAppDatabase;
 import ir.batna.neda.utils.NedaUtils;
 
+import static ir.batna.neda.application.Neda.nedaContext;
 import static ir.batna.neda.utils.NedaUtils.log;
 
 public class MessageHandleService extends IntentService {
@@ -32,7 +33,7 @@ public class MessageHandleService extends IntentService {
         String type = bundle.getString(NedaUtils.TYPE);
         if (type.equalsIgnoreCase(NedaUtils.MESSAGE_HANDLE)) {
 
-            handleReceivedMessages(this, data);
+            handleReceivedMessages(nedaContext, data);
         }
     }
 
@@ -57,7 +58,7 @@ public class MessageHandleService extends IntentService {
                 case NedaUtils.REGISTER_APP:
                     if (jsonObject.getString(NedaUtils.RESULT).equalsIgnoreCase(NedaUtils.SUCCESS)) {
 
-                        String packageName = jsonObject.getString(NedaUtils.PACKAGE_NAME);
+                        String packageName = jsonObject.getString(NedaUtils.APP);
                         String token = jsonObject.getString(NedaUtils.TOKEN);
                         ClientAppDatabase database = ClientAppDatabase.getDatabase(context);
                         ClientApp clientApp = database.clientAppDao().findByToken(token);
@@ -65,6 +66,11 @@ public class MessageHandleService extends IntentService {
 
                             clientApp.status = NedaUtils.REGISTERED;
                             log("Updating " + packageName + " status to registered");
+                            // For now, since push server does not keep track of registered clients, we need to re-register all clients
+                            // every time we connect to server
+                            if (1 == 1) {
+                                break;
+                            }
                             database.clientAppDao().updateByToken(token, NedaUtils.REGISTERED, NedaUtils.getCurrentDateInFormat());
                             log("Database updated");
                         } else {

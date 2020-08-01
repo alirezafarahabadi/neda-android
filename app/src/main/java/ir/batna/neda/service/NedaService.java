@@ -31,6 +31,7 @@ import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import okio.ByteString;
 
+import static ir.batna.neda.application.Neda.nedaContext;
 import static ir.batna.neda.utils.NedaUtils.SIGNATURE;
 import static ir.batna.neda.utils.NedaUtils.getDeviceIdInJason;
 import static ir.batna.neda.utils.NedaUtils.getJsonFormat;
@@ -40,7 +41,6 @@ public class NedaService extends Service {
 
     public static WebSocket ws;
     private static Handler handler = new Handler();
-    private static Context context;
     public static NedaUtils.NedaMode nedaMode = NedaUtils.NedaMode.LEGACY;
 
     public static void initialize(Context context) {
@@ -69,17 +69,16 @@ public class NedaService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         log("NedaService started");
-        if (context == null) context = this;
         Bundle bundle = intent.getExtras();
         String type = bundle.getString(NedaUtils.TYPE);
         log("Intent type is " + type);
         switch (type) {
 
             case NedaUtils.START_NEDA_SERVICE:
-                if (ws == null) startNeda(context);
+                if (ws == null) startNeda(nedaContext);
                 break;
             case NedaUtils.REGISTER_APP:
-                registerClientApp(bundle, context);
+                registerClientApp(bundle, nedaContext);
         }
         return START_STICKY;
     }
@@ -101,20 +100,20 @@ public class NedaService extends Service {
                 super.onOpen(webSocket, response);
                 log("Websocket opened");
                 if (nedaMode.toString().equalsIgnoreCase(NedaUtils.NedaMode.FOREGROUND.toString())) {
-                    configureForegroundService(context, NedaUtils.NOTIFICATION_TEXT);
+                    configureForegroundService(nedaContext, NedaUtils.NOTIFICATION_TEXT);
                 }
                 webSocket.send(deviceRegister);
-                registerUnregisteredApps(context);
+                registerUnregisteredApps(nedaContext);
             }
 
             @Override
             public void onMessage(WebSocket webSocket, String text) {
                 super.onMessage(webSocket, text);
                 log("Received message: " + text);
-                Intent intent = new Intent(context, MessageHandleService.class);
+                Intent intent = new Intent(nedaContext, MessageHandleService.class);
                 intent.putExtra(NedaUtils.TYPE, NedaUtils.MESSAGE_HANDLE);
                 intent.putExtra(NedaUtils.DATA, text);
-                context.startService(intent);
+                nedaContext.startService(intent);
             }
 
             @Override
@@ -132,7 +131,7 @@ public class NedaService extends Service {
             public void onClosed(WebSocket webSocket, int code, String reason) {
                 super.onClosed(webSocket, code, reason);
                 if (nedaMode.toString().equalsIgnoreCase(NedaUtils.NedaMode.FOREGROUND.toString())) {
-                    configureForegroundService(context, NedaUtils.NOTIFICATION_TEXT_CLOSED);
+                    configureForegroundService(nedaContext, NedaUtils.NOTIFICATION_TEXT_CLOSED);
                 }
                 log("Websocket closed");
             }
@@ -140,7 +139,7 @@ public class NedaService extends Service {
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, @Nullable Response response) {
                 if (nedaMode.toString().equalsIgnoreCase(NedaUtils.NedaMode.FOREGROUND.toString())) {
-                    configureForegroundService(context, NedaUtils.NOTIFICATION_TEXT_RECONNECTING);
+                    configureForegroundService(nedaContext, NedaUtils.NOTIFICATION_TEXT_RECONNECTING);
                 }
                 log("Websocket failed, reconnecting in " + NedaUtils.SOCKET_RETRY_INTERVAL + "ms");
                 handler.postDelayed(new Runnable() {

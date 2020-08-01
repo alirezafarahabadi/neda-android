@@ -7,6 +7,7 @@ import android.os.Build;
 
 import ir.batna.neda.service.NedaService;
 
+import static ir.batna.neda.application.Neda.nedaContext;
 import static ir.batna.neda.utils.NedaUtils.log;
 
 public class StartupReceiver extends BroadcastReceiver {
@@ -14,11 +15,13 @@ public class StartupReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        log("Starting StartupReceiver");
-        if (Build.VERSION.SDK_INT >= 24) {
-            context = context.createDeviceProtectedStorageContext();
-            log("Created protected Context!");
+        switch (intent.getAction()) {
+
+            case Intent.ACTION_BOOT_COMPLETED : log("Startup receiver: " + Intent.ACTION_BOOT_COMPLETED); break;
+            case Intent.ACTION_LOCKED_BOOT_COMPLETED: log("Startup receiver: " + Intent.ACTION_LOCKED_BOOT_COMPLETED); break;
         }
-        NedaService.initialize(context);
+
+        log("Starting StartupReceiver");
+        NedaService.initialize(nedaContext);
     }
 }
